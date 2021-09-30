@@ -49,7 +49,7 @@ class mapillary_processor:
                             pbar.update(1)
 
                         pbar.close()
-                        self.__export__(type, layer)
+                        self.__export__(tile.x, tile.y, tile.z, type, layer)
         print('end {}'.format(self.__class__.__name__))
         print('====================================')
 
@@ -69,11 +69,15 @@ class mapillary_processor:
             return True
         
 
-    def __export__(self, type, layer):
+    def __export__(self, tile_x, tile_y, tile_z, type, layer):
         # save a local geojson with the filtered data
-        my_path = path.join(self.root_dir, '{}_{}.geojson'.format(type, layer))
+
+        my_path = path.join(self.root_dir, '{}_{}_{}_{}_{}.geojson'.format(tile_x, tile_y, tile_z, type, layer))
+        #my_path = path.join(self.root_dir, '{}_{}.geojson'.format(type, layer))
+        # TODO: Don´t do, if 0 features!
         with open(my_path, 'w') as f:
             json.dump(self.output, f)
+        # TODO: Make more beautyful
         self.output= { "type": "FeatureCollection", "features": [] }
 
     

@@ -1,6 +1,6 @@
 from mapillary_processor import mapillary_processor
-from os import path
 import os
+import threading
 
 
 class image_downloader(mapillary_processor):
@@ -24,7 +24,7 @@ class image_downloader(mapillary_processor):
         tile_x = feature['properties']['tile_x']
         tile_y = feature['properties']['tile_y']
         tile_z = feature['properties']['tile_z']
-        my_path = path.join(self.root_dir, '{}_{}_{}'.format(tile_x, tile_y, tile_z), sequence_id)
+        my_path = os.path.join(self.root_dir, '{}_{}_{}'.format(tile_x, tile_y, tile_z), sequence_id)
         if not os.path.exists(my_path):
             os.makedirs(my_path)
 
@@ -37,11 +37,16 @@ class image_downloader(mapillary_processor):
             resp = self.session.get(url, headers=header, timeout=self.timeout)
             data = resp.json()
             if self.resolution in data:
-                image_url = data[self.resolution]
-                image_data = self.session.get(image_url, stream=True, timeout=self.timeout).content
-                # save each image with ID as filename to directory by sequence ID
-                with open('{}/{}.jpg'.format(my_path, image_id), 'wb') as handler:
-                    handler.write(image_data)
+                x = threading.Thread(target=self.download_image, args=(data,my_path, image_id,))
+                x.start()
+                
 
-    def __export__(self, type, layer):
+    def __export__(self, tile_x, tile_y, tile_z, type, layer):
         return
+
+    def download_image(self, data, my_path, image_id):
+        image_url = data[self.resolution]
+        image_data = self.session.get(image_url, stream=True, timeout=self.timeout).content
+        # save each image with ID as filename to directory by sequence ID
+        with open('{}/{}.jpg'.format(my_path, image_id), 'wb') as handler:
+            handler.write(image_data)
