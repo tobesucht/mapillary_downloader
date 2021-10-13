@@ -1,20 +1,22 @@
 import mercantile, requests, json
 from vt2geojson.tools import vt_bytes_to_geojson
-from os import path
+import os
 import tqdm
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
 class mapillary_processor:
 
+    # https://www.mapillary.com/developer/api-documentation/
     output = {}
     feature_types = {}
     tile_layers = {}
     pbar = None
     session = None
-    timeout = 2
+    timeout = 5
 
     def __init__(self, access_token, root_dir, bounding_box):
+        self.__reset__()
         self.access_token = access_token
         self.root_dir = root_dir
         self.bounding_box = bounding_box
@@ -68,17 +70,19 @@ class mapillary_processor:
             # we only filter for point features
             return True
         
-
     def __export__(self, tile_x, tile_y, tile_z, type, layer):
         # save a local geojson with the filtered data
+        my_dir = os.path.join(self.root_dir, '{}_{}_{}'.format(tile_x, tile_y, tile_z))
+        if not os.path.exists(my_dir):
+            os.makedirs(my_dir)
+        my_file = os.path.join(my_dir, '{}_{}_{}_{}_{}.geojson'.format(tile_x, tile_y, tile_z, type, layer))
+        if (len(self.output["features"])) > 0:
+            with open(my_file, 'w') as f:
+                json.dump(self.output, f)
+            self.__reset__()
 
-        my_path = path.join(self.root_dir, '{}_{}_{}_{}_{}.geojson'.format(tile_x, tile_y, tile_z, type, layer))
-        #my_path = path.join(self.root_dir, '{}_{}.geojson'.format(type, layer))
-        # TODO: Don´t do, if 0 features!
-        with open(my_path, 'w') as f:
-            json.dump(self.output, f)
-        # TODO: Make more beautyful
-        self.output= { "type": "FeatureCollection", "features": [] }
+    def __reset__(self):
+        self.output = { "type": "FeatureCollection", "features": [] }
 
     
 

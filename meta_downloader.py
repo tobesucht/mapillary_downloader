@@ -1,9 +1,9 @@
 from mapillary_processor import mapillary_processor
+from os import path
 import os
-import threading
 
 
-class image_downloader(mapillary_processor):
+class meta_downloader(mapillary_processor):
 
     # vector tile endpoints -- change this in the API request to reference the correct endpoint
     feature_types = {'mly1_public'}
@@ -13,7 +13,7 @@ class image_downloader(mapillary_processor):
     # 2. if looking for coverage, it will be "image" for points, "sequence" for lines, or "overview" for far zoom
     tile_layers = {"image"}
 
-    resolution = 'thumb_2048_url'
+    resolution = 'id,captured_at,compass_angle,sequence,geometry'
 
     def __process_feature__(self, feature):
         # create a folder for each unique tile and sequence ID to group images by tiles and sequence
@@ -21,32 +21,20 @@ class image_downloader(mapillary_processor):
         tile_x = feature['properties']['tile_x']
         tile_y = feature['properties']['tile_y']
         tile_z = feature['properties']['tile_z']
-        my_path = os.path.join(self.root_dir, '{}_{}_{}'.format(tile_x, tile_y, tile_z), sequence_id)
+        my_path = path.join(self.root_dir, '{}_{}_{}'.format(tile_x, tile_y, tile_z), sequence_id)
         if not os.path.exists(my_path):
             os.makedirs(my_path)
 
+        # request the URL of each image
         image_id = feature['properties']['id']
-        thread_meta = threading.Thread(target=self.request_image_data, args=(my_path, image_id,))
-        thread_meta.start()
-
-    def __export__(self, tile_x, tile_y, tile_z, type, layer):
-        return
-
-    def request_image_data(self, my_path, image_id):
         # in order to continue previously started runs
         if not os.path.exists('{}/{}.jpg'.format(my_path, image_id)):
             header = {'Authorization' : 'OAuth {}'.format(self.access_token)}
-            # request the URL of each image
             url = 'https://graph.mapillary.com/{}?fields={}'.format(image_id, self.resolution)
             resp = self.session.get(url, headers=header, timeout=self.timeout)
             data = resp.json()
-            if self.resolution in data:
-                x = threading.Thread(target=self.download_image, args=(data,my_path, image_id,))
-                x.start()
+            # only for test purposes
+            print(data)
 
-    def download_image(self, data, my_path, image_id):
-        image_url = data[self.resolution]
-        image_data = self.session.get(image_url, stream=True, timeout=self.timeout).content
-        # save each image with ID as filename to directory by sequence ID
-        with open('{}/{}.jpg'.format(my_path, image_id), 'wb') as handler:
-            handler.write(image_data)
+    def __export__(self, type, layer):
+        return
