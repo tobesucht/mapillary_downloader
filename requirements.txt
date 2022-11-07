@@ -1,0 +1,7 @@
+# To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
+protobuf==3.19.0
+mercantile==1.2.1
+tqdm==4.56.0
+urllib3==1.25.8
+requests==2.22.0
+vt2geojson==0.2.1

@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  mapillarydownloader:
+    image: mapillarydownloader
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    tty: true
+    network_mode: "host"
+    volumes:
+      - /home/tobesucht/temp/mapillary:/app/data/
+    environment:
+      - HTTP_PROXY=http://127.0.0.1:3128
+      - HTTPS_PROXY=http://127.0.0.1:3128
+      - DOWNLOAD_DIRECTORY=/app/data/
+      - ACCESS_TOKEN=MLY| # put your token here
+      - TIMEOUT_TIME=5
+      - TIMEOUT_RETRIES=5
+      - RETRIES_BACKOFF_FACTOR=2
+      - NUMBER_OF_THREADS=20
+      - MIN_LON=11.51422
+      - MAX_LON=11.53425
+      - MIN_LAT=48.16665
+      - MAX_LAT=48.19522
+      - DOWNLOAD_FEATURES=TRUE
+      - DOWNLOAD_IMAGES=TRUE
+      - DOWNLOAD_IMAGE_META_INFORMATION=TRUE
+

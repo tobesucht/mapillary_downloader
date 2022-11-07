@@ -75,3 +75,16 @@ class bounding_box:
     @staticmethod
     def paf():
         return bounding_box(west=11.477553225690132, south=48.521238923077085, east=11.485313186246147, north=48.52532145934347)
+
+    @staticmethod
+    def office():
+        return bounding_box(west=11.51422, south=48.16665, east=11.55642, north=48.19522)
+
+    @staticmethod
+    def office_small():
+        return bounding_box(west=11.51422, south=48.16665, east=11.53425, north=48.19522)
+
+    @staticmethod
+    def munich():
+        return bounding_box(west=11.40282, south=48.02075, east=11.86392, north=48.38447)
+

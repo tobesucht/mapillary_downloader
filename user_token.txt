@@ -1,0 +1,12 @@
+In order to create your own user token, please have a look at https://www.mapillary.com/developer/api-documentation/#authentication
+
+You need a free Mapillary account for this. You´ll find the important information here: https://www.mapillary.com/dashboard/developers
+
+You will have to use your mapillary client ID in order to retrieve a token which has to be entered in app.py. The token has to be refreshed every few months.
+
+Get your token wit the callback-ID:
+curl https://graph.mapillary.com/token -H "Content-Type: application/json" -H "Authorization: OAuth YOUR_SECRET_CLIENT_ID" -d'{"grant_type": "authorization_code", "client_id": YOUR_CLIENT_ID, "code": "YOUR_CALLBACK_ID"}' 
+
+REFRESH (take provided access_token):
+curl https://graph.mapillary.com/token -H "Content-Type: application/json" -H "Authorization: OAuth YOUR_SECRET_CLIENT_ID" -d'{"grant_type": "refresh_token", "refresh_token": "YOUR_TOKEN", "client_id": YOUR_CLIENT_ID}' 
+
